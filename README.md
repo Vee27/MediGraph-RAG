@@ -80,16 +80,20 @@ Visit http://localhost:8000/docs
 
 MediGraph-RAG/
 ├── app/
-│   ├── api/routes/       FastAPI endpoints
-│   ├── agents/           LangGraph agents
-│   ├── rag/              Ingest, retrieval, prompts
-│   ├── models/           Ollama client, response models
-│   ├── tools/            Timeline, medication tools
-│   ├── memory/           Session memory
-│   ├── evaluation/       RAGAS eval, hallucination check
-│   └── config/           Settings, logging
-├── frontend/react-app/   React + Vite UI
-├── datasets/             Sample charts, eval QA pairs
-├── tests/                Pytest test suite
-└── docs/                 Architecture docs
+│   ├── api/
+│   │   └── routes/          # FastAPI endpoints
+│   ├── agents/              # LangGraph agents
+│   ├── rag/                 # Ingest, retrieval, prompts
+│   ├── models/              # Ollama client, response models
+│   ├── tools/               # Timeline, medication tools
+│   ├── memory/              # Session memory
+│   ├── evaluation/          # RAGAS eval, hallucination checks
+│   └── config/              # Settings, logging
+│
+├── frontend/
+│   └── react-app/           # React + Vite UI
+│
+├── datasets/                # Sample charts, evaluation QA pairs
+├── tests/                   # Pytest test suite
+└── docs/                    # Architecture documentation
 

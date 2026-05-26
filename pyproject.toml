@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.backends.legacy:build"
 
 [project]
-name = "mediagraph-rag"
+name = "medigraph-rag"
 version = "0.1.0"
 description = "Agentic RAG chatbot for medical charts using FastAPI, LangGraph and Ollama"
 requires-python = ">=3.11"

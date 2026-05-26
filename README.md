@@ -30,37 +30,58 @@ An agentic RAG chatbot for medical charts, built with FastAPI, LangGraph, and Ol
 - Python 3.11+
 - Ollama installed and running
 - Docker (optional)
+- (Windows) Chocolatey if you want to use `make`
 
 ### 1. Clone the repo
 
+```bash
 git clone https://github.com/YOUR_USERNAME/MediGraph-RAG.git
 cd MediGraph-RAG
+```
 
 ### 2. Create virtual environment
 
+```bash
 python -m venv .venv
-source .venv/Scripts/activate
+# Unix/macOS
+source .venv/bin/activate
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+```
 
 ### 3. Install dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 ### 4. Set up environment
 
-Copy .env.example to .env and edit with your settings
+```bash
+cp .env.example .env
+# On Windows PowerShell:
+# Copy-Item .env.example .env
+```
 
 ### 5. Pull Ollama models
 
+```bash
 ollama pull phi3:mini
 ollama pull nomic-embed-text
+```
 
 ### 6. Run the app
 
+```bash
+# Unix/macOS
 make run
 
-or
+# Windows PowerShell
+.\scripts\run.ps1
 
-uvicorn app.main:app --reload
+# or cross-platform
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
 ### 7. Open the API docs
 
@@ -78,6 +99,7 @@ Visit http://localhost:8000/docs
 
 ## Project structure
 
+```text
 MediGraph-RAG/
 ├── app/
 │   ├── api/
@@ -96,4 +118,5 @@ MediGraph-RAG/
 ├── datasets/                # Sample charts, evaluation QA pairs
 ├── tests/                   # Pytest test suite
 └── docs/                    # Architecture documentation
+```
 

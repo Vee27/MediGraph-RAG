@@ -19,3 +19,10 @@ class HealthResponse(BaseModel):
     status: str
     ollama_reachable: bool
     model: str
+
+class UploadResponse(BaseModel):
+    """What /upload sends back after processing a PDF"""
+    message: str
+    patient_id: str
+    chunks_stored: int
+    pages_processed: int

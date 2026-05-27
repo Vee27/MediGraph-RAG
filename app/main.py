@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.api.routes import health, chat
+from app.api.routes import health, chat, upload
 from app.config.logging_config import setup_logging
 import logging
 
@@ -24,3 +24,4 @@ app = FastAPI(
 
 app.include_router(health.router, tags=["system"])
 app.include_router(chat.router, tags=["chat"])
+app.include_router(upload.router, tags=["upload"])

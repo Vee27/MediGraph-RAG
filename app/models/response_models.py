@@ -2,26 +2,32 @@ from pydantic import BaseModel
 
 
 class ChatRequest(BaseModel):
-    """What the user sends to /chat"""
     message: str
     session_id: str = "default"
+    patient_id: str = ""
+
+
+class SourceChunk(BaseModel):
+    text: str
+    page: int
+    score: float
 
 
 class ChatResponse(BaseModel):
-    """What /chat sends back"""
     reply: str
     session_id: str
     model: str
+    sources: list[SourceChunk] = []
+    intent: str = ""
 
 
 class HealthResponse(BaseModel):
-    """What /health sends back"""
     status: str
     ollama_reachable: bool
     model: str
 
+
 class UploadResponse(BaseModel):
-    """What /upload sends back after processing a PDF"""
     message: str
     patient_id: str
     chunks_stored: int

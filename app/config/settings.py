@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     )
 
     # Ollama
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "http://localhost:11435"
     ollama_chat_model: str = "phi3:mini"
     ollama_embed_model: str = "nomic-embed-text"
 

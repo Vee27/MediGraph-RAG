@@ -1,21 +1,19 @@
-.PHONY: run docker-up docker-down test lint
+.PHONY: run dev docker-up docker-down test lint eval
 
-# Run the app locally (without Docker)
 run:
-	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-# Start everything in Docker
 docker-up:
-	docker compose up --build
+	docker compose up --build -d
 
-# Stop all Docker containers
 docker-down:
 	docker compose down
 
-# Run tests
 test:
 	pytest tests/ -v
 
-# Check code style
 lint:
-	ruff check app/
+	ruff check app/ tests/
+
+eval:
+	python -m app.evaluation.benchmark

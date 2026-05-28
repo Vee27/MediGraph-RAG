@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     )
 
     # Ollama
-    ollama_base_url: str = "http://localhost:11435"
+    ollama_base_url: str = "http://localhost:11434"
     ollama_chat_model: str = "phi3:mini"
     ollama_embed_model: str = "nomic-embed-text"
 
@@ -21,6 +21,12 @@ class Settings(BaseSettings):
 
     # ChromaDB
     chroma_persist_dir: str = "./app/database/chroma"
+
+    # LangSmith
+    langchain_tracing_v2: str = "false"
+    langchain_api_key: str = ""
+    langchain_project: str = "mediagraph-rag"
+    langchain_endpoint: str = "https://api.smith.langchain.com"
 
 
 settings = Settings()

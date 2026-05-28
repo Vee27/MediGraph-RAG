@@ -9,7 +9,6 @@ from app.agents.safety_wrapper import apply_safety_wrapper
 
 logger = logging.getLogger(__name__)
 
-
 # ----------------------------------------------------------------
 # COMBINED NODES
 # Each tool needs context first — retrieve then run the tool.
@@ -102,6 +101,7 @@ async def run_rag_graph(
     message: str,
     patient_id: str,
     session_id: str = "default",
+    history: list[dict] = [],
 ) -> dict:
     """Run the clinical graph and return the final state."""
     graph = build_rag_graph()
@@ -115,6 +115,7 @@ async def run_rag_graph(
         "reply": "",
         "error": "",
         "intent": "",
+        "history": history,
     }
 
     logger.info(f"Graph start — patient: {patient_id} | '{message[:60]}'")

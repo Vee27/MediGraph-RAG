@@ -7,14 +7,15 @@ from app.models.ollama_client import OllamaClient
 from app.api.dependencies import get_ollama_client
 from app.agents.graph_builder import run_rag_graph
 from app.agents.summarizer_agent import run_soap_node
+from app.memory.session_memory import session_memory
 from app.config.settings import settings
 import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are a clinical assistant helping physicians 
-understand patient charts. Answer accurately and concisely using 
+SYSTEM_PROMPT = """You are a clinical assistant helping physicians
+understand patient charts. Answer accurately and concisely using
 only verified information."""
 
 
@@ -33,11 +34,6 @@ async def chat(
     request: ChatRequest,
     client: OllamaClient = Depends(get_ollama_client),
 ):
-    """
-    Two modes:
-    - With patient_id: full RAG graph (retrieve → tool/generate)
-    - Without patient_id: direct Ollama (general questions)
-    """
     logger.info(
         f"Chat — session: {request.session_id} | "
         f"patient: '{request.patient_id}' | "
@@ -46,17 +42,42 @@ async def chat(
 
     try:
         if request.patient_id:
+            # Get conversation history for this session
+            history = session_memory.get_history(request.session_id)
+
+            logger.info(
+                f"Session {request.session_id} has "
+                f"{len(history)} previous messages"
+            )
+
+            # Run the full RAG graph with history
             final_state = await run_rag_graph(
                 message=request.message,
                 patient_id=request.patient_id,
                 session_id=request.session_id,
+                history=history,
+            )
+
+            # Save this exchange to memory
+            session_memory.add_message(
+                session_id=request.session_id,
+                role="user",
+                content=request.message,
+                patient_id=request.patient_id,
+            )
+            session_memory.add_message(
+                session_id=request.session_id,
+                role="assistant",
+                content=final_state["reply"],
             )
 
             sources = [
                 SourceChunk(
                     text=c.get("text", "")[:200],
                     page=c.get("page", 0),
-                    score=float(c.get("score", c.get("hybrid_score", 0.0))),
+                    score=float(
+                        c.get("score", c.get("hybrid_score", 0.0))
+                    ),
                 )
                 for c in final_state.get("sources", [])
             ]
@@ -70,11 +91,28 @@ async def chat(
             )
 
         else:
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": request.message},
-            ]
+            # Direct Ollama — still use memory for continuity
+            history = session_memory.get_history(request.session_id)
+
+            messages = (
+                [{"role": "system", "content": SYSTEM_PROMPT}]
+                + history
+                + [{"role": "user", "content": request.message}]
+            )
+
             reply = await client.chat(messages=messages)
+
+            # Save to memory
+            session_memory.add_message(
+                session_id=request.session_id,
+                role="user",
+                content=request.message,
+            )
+            session_memory.add_message(
+                session_id=request.session_id,
+                role="assistant",
+                content=reply,
+            )
 
             return ChatResponse(
                 reply=reply,
@@ -91,19 +129,19 @@ async def chat(
 
 @router.post("/soap", response_model=SOAPResponse)
 async def generate_soap(request: SOAPRequest):
-    """Generate a SOAP note for an uploaded patient chart."""
     logger.info(f"SOAP — patient: {request.patient_id}")
 
     try:
         state = {
-            "message": "Generate SOAP note",
+            "message":    "Generate SOAP note",
             "patient_id": request.patient_id,
             "session_id": request.session_id,
-            "context": "",
-            "sources": [],
-            "reply": "",
-            "error": "",
-            "intent": "soap",
+            "context":    "",
+            "sources":    [],
+            "reply":      "",
+            "error":      "",
+            "intent":     "soap",
+            "history":    [],
         }
 
         final_state = await run_soap_node(state)
@@ -116,3 +154,19 @@ async def generate_soap(request: SOAPRequest):
     except Exception as e:
         logger.error(f"SOAP failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/session/{session_id}")
+async def clear_session(session_id: str):
+    """
+    Clear a session's conversation history.
+    Call this when starting a new patient case.
+    """
+    session_memory.clear_session(session_id)
+    return {"message": f"Session {session_id} cleared"}
+
+
+@router.get("/session/{session_id}/stats")
+async def session_stats(session_id: str):
+    """Get stats about a conversation session."""
+    return session_memory.get_session_stats(session_id)

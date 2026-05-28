@@ -16,7 +16,8 @@ class AgentState(TypedDict):
     sources: list[dict]
     reply: str
     error: str
-    intent: str          # added — router decision
+    intent: str
+    history: list[dict]
 
 
 async def retrieve_node(state: AgentState) -> AgentState:
@@ -55,15 +56,39 @@ async def retrieve_node(state: AgentState) -> AgentState:
 
 
 async def generate_node(state: AgentState) -> AgentState:
-    """Generate a grounded answer using retrieved context."""
+    """Generate a grounded answer using retrieved context including history
+       for follow-up questions."""
     logger.info("[generate_node] Generating answer")
 
     try:
-        messages = build_rag_messages(
+        # build RAG prompt with retrieved context + question
+        rag_messages = build_rag_messages(
             context=state["context"],
             question=state["message"],
         )
-        reply = await ollama_client.chat(messages=messages, temperature=0.1)
+
+        # If there is conversation history, inject it between
+        # the system message and the current user message.
+        # This gives the LLM full conversation context.
+        history = state.get("history", [])
+
+        if history:
+            system_msg = rag_messages[0]
+            current_user_msg = rag_messages[1]
+
+            messages_with_history = (
+                [system_msg]
+                + history        # previous turns
+                + [current_user_msg]  # current question
+            )
+        else:
+            messages_with_history = rag_messages
+
+        reply = await ollama_client.chat(
+            messages=messages_with_history,
+            temperature=0.1,
+        )
+
         return {**state, "reply": reply}
 
     except Exception as e:

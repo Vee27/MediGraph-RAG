@@ -1,6 +1,0 @@
-#pull the models
-docker exec medigraph-ollama ollama pull phi3:mini
-docker exec medigraph-ollama ollama pull nomic-embed-text
-
-docker compose up --build
-

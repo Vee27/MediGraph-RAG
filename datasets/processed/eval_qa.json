@@ -1,0 +1,152 @@
+[
+  {
+    "question": "What is the patient's full name?",
+    "ground_truth": "John Doe",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's date of birth?",
+    "ground_truth": "March 12, 1972",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's MRN?",
+    "ground_truth": "MRN-2024-1187",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the date of the visit?",
+    "ground_truth": "January 15, 2024",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's chief complaint?",
+    "ground_truth": "Routine follow-up for hypertension and diabetes management, with intermittent headaches and fatigue over the past several weeks",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's blood pressure?",
+    "ground_truth": "145/92 mmHg",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's heart rate?",
+    "ground_truth": "84 bpm",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's weight?",
+    "ground_truth": "92 kg",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's BMI?",
+    "ground_truth": "29.0 kg/m²",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What are the patient's diagnoses?",
+    "ground_truth": "Hypertension (ICD-10: I10) and Type 2 Diabetes Mellitus (ICD-10: E11.9)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What medications is the patient currently taking?",
+    "ground_truth": "Metformin 500mg twice daily and Amlodipine 5mg once daily",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the dosage and frequency of Metformin?",
+    "ground_truth": "500mg twice daily",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the dosage and frequency of Amlodipine?",
+    "ground_truth": "5mg once daily",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's fasting blood sugar level?",
+    "ground_truth": "180 mg/dL, which is high (reference range 70-99 mg/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's HbA1c level?",
+    "ground_truth": "8.2%, which is high (reference range below 5.7%)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's total cholesterol?",
+    "ground_truth": "220 mg/dL, which is high (reference range below 200 mg/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's LDL cholesterol?",
+    "ground_truth": "145 mg/dL, which is high (reference range below 100 mg/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's HDL cholesterol?",
+    "ground_truth": "38 mg/dL, which is low (reference range above 40 mg/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's triglyceride level?",
+    "ground_truth": "210 mg/dL, which is high (reference range below 150 mg/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's creatinine level?",
+    "ground_truth": "1.0 mg/dL, which is normal (reference range 0.7-1.3 mg/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the patient's hemoglobin level?",
+    "ground_truth": "14.1 g/dL, which is within normal range (13.5-17.5 g/dL)",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What lab results are abnormal?",
+    "ground_truth": "Fasting blood sugar (180 mg/dL), HbA1c (8.2%), total cholesterol (220 mg/dL), LDL cholesterol (145 mg/dL), HDL cholesterol (38 mg/dL), and triglycerides (210 mg/dL) are all abnormal",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the interpretation of the lab findings?",
+    "ground_truth": "Lab findings indicate uncontrolled blood sugar levels and elevated cholesterol. Kidney function remains within normal limits.",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What lifestyle recommendations were given?",
+    "ground_truth": "Low sodium and low sugar diet, increase vegetables and fiber intake, walking 30-45 minutes daily, and avoid sugary beverages",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What is the treatment plan?",
+    "ground_truth": "Continue Metformin 500mg twice daily, continue Amlodipine 5mg once daily, encourage regular exercise and diet control, follow-up in 3 months",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "When is the next follow-up appointment?",
+    "ground_truth": "April 15, 2024 at the Internal Medicine Outpatient Department",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What tests should be repeated before the next visit?",
+    "ground_truth": "HbA1c and fasting glucose testing",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "Who is the treating physician?",
+    "ground_truth": "Dr. Sarah Mitchell, MD",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What did the nursing notes say?",
+    "ground_truth": "Patient understands medication schedule and lifestyle recommendations. No acute distress noted during visit.",
+    "patient_id": "patient-001"
+  },
+  {
+    "question": "What symptoms does the patient report?",
+    "ground_truth": "Intermittent headaches and fatigue over the past several weeks",
+    "patient_id": "patient-001"
+  }
+]

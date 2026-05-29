@@ -1,0 +1,314 @@
+.soap-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.soap-viewer--empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.soap-empty-msg {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ─── Header ──────────────────────────────────────────────── */
+.soap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.soap-header__left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.soap-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.soap-patient-id {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(78,158,255,0.2);
+}
+
+.soap-header__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── View toggle ─────────────────────────────────────────── */
+.soap-view-toggle {
+  display: flex;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.soap-toggle-btn {
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.soap-toggle-btn.active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ─── Buttons ─────────────────────────────────────────────── */
+.soap-copy-btn,
+.soap-generate-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.soap-copy-btn {
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.soap-copy-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.soap-generate-btn {
+  background: var(--accent);
+  color: #fff;
+}
+
+.soap-generate-btn:hover:not(:disabled) {
+  background: #6aadff;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.soap-generate-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Error ───────────────────────────────────────────────── */
+.soap-error {
+  font-size: 0.78rem;
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid rgba(255,95,95,0.2);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+/* ─── Loading ─────────────────────────────────────────────── */
+.soap-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.soap-loading__bar {
+  width: 200px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+}
+
+.soap-loading__bar::after {
+  content: '';
+  position: absolute;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: bar-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes bar-slide {
+  from { left: -40%; }
+  to   { left: 100%; }
+}
+
+/* ─── SOAP sections ───────────────────────────────────────── */
+.soap-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.soap-section {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.soap-section__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.soap-section__badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.soap-section__badge--blue   { background: var(--accent-dim);      color: var(--accent); }
+.soap-section__badge--green  { background: var(--green-dim);        color: var(--green);  }
+.soap-section__badge--amber  { background: var(--amber-dim);        color: var(--amber);  }
+.soap-section__badge--purple { background: rgba(147,51,234,0.1);   color: #c084fc;       }
+
+.soap-section__title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+}
+
+.soap-section__body {
+  padding: 12px 14px;
+  background: var(--bg-surface);
+}
+
+.soap-section__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.soap-section__item {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+
+.soap-section__item::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
+
+.soap-section__empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ─── Raw view ────────────────────────────────────────────── */
+.soap-raw {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.soap-raw p  { margin-bottom: 8px; }
+.soap-raw ul { padding-left: 18px; margin-bottom: 8px; }
+.soap-raw li { margin-bottom: 3px; }
+.soap-raw strong { color: var(--text-primary); }
+
+/* ─── Idle state ──────────────────────────────────────────── */
+.soap-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 0;
+}
+
+.soap-idle__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.soap-idle__cell {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.soap-idle__letter {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.soap-idle__letter--blue   { color: var(--accent); }
+.soap-idle__letter--green  { color: var(--green);  }
+.soap-idle__letter--amber  { color: var(--amber);  }
+.soap-idle__letter--purple { color: #c084fc;        }
+
+.soap-idle__desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.soap-idle__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 240px;
+  line-height: 1.5;
+}

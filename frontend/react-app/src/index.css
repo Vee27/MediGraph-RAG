@@ -1,0 +1,75 @@
+/* ─── Design tokens ─────────────────────────────────────────── */
+:root {
+  --bg:          #0d0f12;
+  --bg-surface:  #13161b;
+  --bg-raised:   #1a1e26;
+  --bg-hover:    #1f2430;
+  --border:      #252a36;
+  --border-light:#2e3445;
+
+  --text-primary:   #e8ecf4;
+  --text-secondary: #8b93a8;
+  --text-muted:     #535c72;
+
+  --accent:      #4e9eff;
+  --accent-dim:  rgba(78, 158, 255, 0.12);
+  --accent-glow: rgba(78, 158, 255, 0.25);
+
+  --green:       #34c97a;
+  --green-dim:   rgba(52, 201, 122, 0.1);
+  --red:         #ff5f5f;
+  --red-dim:     rgba(255, 95, 95, 0.1);
+  --amber:       #f5a623;
+  --amber-dim:   rgba(245, 166, 35, 0.1);
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', 'Fira Code', monospace;
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+/* ─── Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; font-size: 15px; }
+
+body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+#root { height: 100%; display: flex; flex-direction: column; }
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Typography ─────────────────────────────────────────────── */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; }
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* ─── Utility ────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+}

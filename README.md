@@ -1,122 +1,286 @@
 # MediGraph-RAG
 
-An agentic RAG chatbot for medical charts, built with FastAPI, LangGraph, and Ollama.
+A locally-running agentic RAG system for clinical chart analysis.
+Upload a patient PDF, ask physician-style questions, extract medications,
+build patient timelines, and generate SOAP notes — all powered by Ollama
+running entirely on your own machine.
+
+> ⚠️ Research and educational use only.
+> Not FDA-approved medical software. Do not use for clinical decision-making.
+> If LangSmith tracing is enabled, metadata may be sent to LangSmith cloud.
+
+## Architecture
+
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    React + Vite Frontend                    │
+│                                                             │
+│     Upload PDF │ Chat │ Timeline │ SOAP Notes              │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ HTTP
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        FastAPI API                          │
+│                                                             │
+│   POST /upload   POST /chat   POST /soap   GET /health      │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    LangGraph Agent                          │
+│                                                             │
+│  clinical_router                                            │
+│       ├── retrieve                                          │
+│       ├── medication                                        │
+│       ├── timeline                                          │
+│       └── soap                                              │
+│                                                             │
+│                    ↓ safety_wrapper                         │
+└──────────────┬───────────────────────┬──────────────────────┘
+               │                       │
+               ▼                       ▼
+
+┌───────────────────────────┐   ┌───────────────────────────┐
+│      Hybrid Retrieval     │   │          Ollama           │
+│                           │   │                           │
+│  Dense Search             │   │      phi3:mini           │
+│  BM25                     │   │      (generation)        │
+│  Reciprocal Rank Fusion   │   │                           │
+└──────────────┬────────────┘   │   nomic-embed-text       │
+               │                │      (embeddings)        │
+               │                └───────────────────────────┘
+               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        ChromaDB                             │
+│                                                             │
+│              Embedded Patient Documents                     │
+└─────────────────────────────────────────────────────────────┘
+```
+### Document Ingestion Pipeline
+
+```text
+       PDF Chart
+           │
+           ▼
+┌─────────────────────┐
+│      PyMuPDF        │
+│    PDF Loader       │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   Text Chunking     │
+│  512 chars + overlap│
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  nomic-embed-text   │
+│     Embeddings      │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│      ChromaDB       │
+│   Vector Storage    │
+└──────────┬──────────┘
+           │
+           ▼
+      Ready for
+   Hybrid Retrieval
+```
+
+
 
 ## What it does
 
-- Upload patient charts as PDF
-- Ask physician-style questions grounded in the chart
-- Generate SOAP-style clinical summaries
-- Detect medications and build patient timelines
-- Runs fully locally using Ollama — no external API needed
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| API | FastAPI |
-| Agent framework | LangGraph |
-| LLM runtime | Ollama (phi3:mini) |
-| Embeddings | nomic-embed-text |
-| Vector DB | ChromaDB |
-| Frontend | React + Vite |
-| Evaluation | RAGAS |
-| Deployment | Docker |
+- Upload patient charts
+- Answer clinical questions
+- Extract medications
+- Build patient timelines
+- Generate SOAP notes
+- Multi-turn memory
+- RAGAS evaluation
+- Optional LangSmith tracing
 
 ## Quickstart
 
+
 ### Prerequisites
 
-- Python 3.11+
-- Ollama installed and running
-- Docker (optional)
-- (Windows) Chocolatey if you want to use `make`
+| Tool | Version | Install |
+|---|---|---|
+| Python | 3.11+ | [python.org](https://python.org) |
+| Node.js | 20+ | [nodejs.org](https://nodejs.org) |
+| Ollama | 0.1.30+ | [ollama.ai](https://ollama.ai) |
+| Docker | 20+ | [docker.com](https://docker.com) (optional) |
 
-### 1. Clone the repo
+---
+
+### 1. Clone and set up
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/MediGraph-RAG.git
+git clone https://github.com/Vee27/MediGraph-RAG.git
 cd MediGraph-RAG
-```
 
-### 2. Create virtual environment
-
-```bash
 python -m venv .venv
-# Unix/macOS
-source .venv/bin/activate
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-```
+source .venv/Scripts/activate      # Windows Git Bash
+# source .venv/bin/activate        # macOS / Linux
 
-### 3. Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-### 4. Set up environment
+### 2. Configure environment
 
 ```bash
 cp .env.example .env
-# On Windows PowerShell:
-# Copy-Item .env.example .env
 ```
 
-### 5. Pull Ollama models
+### 3. Pull Ollama models
 
 ```bash
-ollama pull phi3:mini
-ollama pull nomic-embed-text
+ollama pull phi3:mini          # ~2.2 GB
+ollama pull nomic-embed-text   # ~274 MB
 ```
 
-### 6. Run the app
+### 4. Verify installation
 
 ```bash
-# Unix/macOS
-make run
+# Terminal 1 — start Ollama
+ollama serve
 
-# Windows PowerShell
-.\scripts\run.ps1
-
-# or cross-platform
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Terminal 2 — start FastAPI
+uvicorn app.main:app --reload
 ```
 
-### 7. Open the API docs
+Hit the health endpoint:
 
-Visit http://localhost:8000/docs
+```bash
+curl http://localhost:8000/health
+```
 
-## Make commands
+Expected response:
 
-| Command | What it does |
+```json
+{
+  "status": "ok",
+  "ollama_reachable": true,
+  "model": "phi3:mini"
+}
+```
+
+If `ollama_reachable` is `false`, make sure `ollama serve` is running in another terminal.
+
+### 5. Start the frontend
+
+```bash
+# Terminal 3
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser.
+
+### 6. Run with Docker (alternative)
+
+```bash
+make docker-up
+```
+
+Services start on the same ports. To stop: `make docker-down`.
+
+---
+
+## Frontend ↔ Backend connection
+
+The React frontend talks to FastAPI via a **Vite proxy** — no environment
+variable or CORS configuration is needed during local development.
+
+In `frontend/vite.config.js`:
+
+```js
+server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api/, ''),
+    },
+  },
+}
+```
+
+All `axios` calls in `src/api/client.js` use `/api` as the base URL.
+Vite rewrites them to `http://localhost:8000` transparently. No
+`VITE_API_URL` env var is needed in development.
+
+For production builds, set up a reverse proxy (nginx, Caddy) to forward
+`/api` to the FastAPI container, or set `VITE_API_URL` in a production
+`.env.production` file.
+
+---
+
+
+## Example workflow
+
+1. Upload a patient chart PDF through the web interface.
+2. Ask clinical questions about medications, diagnoses, or lab values.
+3. Generate a patient timeline.
+4. Create a SOAP note.
+5. Continue the conversation using session memory.
+
+Example questions:
+
+- What medications is the patient taking?
+- What were the patient's most recent vital signs?
+- Build a timeline of clinical events.
+- Generate a SOAP note for this encounter.
+
+See `docs/api_examples.md` for REST API examples.
+
+## Performance benchmarks
+
+Measured on Windows 11, Intel Core i7, 16 GB RAM, Ollama running locally
+with `phi3:mini`. Numbers will vary by hardware.
+
+| Metric | Value |
 |---|---|
-| make run | Start FastAPI dev server |
-| make docker-up | Start all services in Docker |
-| make docker-down | Stop all Docker services |
-| make test | Run pytest |
-| make eval | Run RAGAS evaluation |
+| PDF indexing (3-page chart) | ~45 seconds |
+| Embedding per chunk | ~1.2 seconds |
+| Retrieval latency (hybrid search) | ~2 seconds |
+| Chat response — retrieve intent | ~12–18 seconds |
+| Chat response — SOAP note | ~25–35 seconds |
+| Chunk size | 512 characters |
+| Chunk overlap | 64 characters |
+| Top-k retrieval (dense) | 10 candidates |
+| Top-k after RRF reranking | 5 results |
 
-## Project structure
+phi3:mini is chosen for low RAM usage (~2.2 GB). Swap for `llama3.1:8b`
+on machines with 16 GB+ RAM for meaningfully better output quality.
 
-```text
-MediGraph-RAG/
-├── app/
-│   ├── api/
-│   │   └── routes/          # FastAPI endpoints
-│   ├── agents/              # LangGraph agents
-│   ├── rag/                 # Ingest, retrieval, prompts
-│   ├── models/              # Ollama client, response models
-│   ├── tools/               # Timeline, medication tools
-│   ├── memory/              # Session memory
-│   ├── evaluation/          # RAGAS eval, hallucination checks
-│   └── config/              # Settings, logging
-│
-├── frontend/
-│   └── react-app/           # React + Vite UI
-│
-├── datasets/                # Sample charts, evaluation QA pairs
-├── tests/                   # Pytest test suite
-└── docs/                    # Architecture documentation
+---
+
+## Evaluation
+
+The project includes a RAGAS evaluation suite built on a synthetic clinical dataset.
+
+Metrics tracked:
+
+- Faithfulness
+- Answer Relevancy
+
+Run:
+
+```bash
+make eval
 ```
 
+See `docs/evaluation.md` for methodology and benchmark details.
+
+## License
+
+MIT License. See LICENSE for details.

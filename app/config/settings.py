@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # ChromaDB
-    chroma_persist_dir: str = "./app/database/chroma"
+    chroma_persist_dir: str = "./app/rag/vectorstore/chroma"
 
     # LangSmith
     langchain_tracing_v2: str = "false"

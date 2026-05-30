@@ -1,0 +1,34 @@
+### Health Check
+GET http://localhost:8000/health
+
+###
+
+### Upload Chart
+POST http://localhost:8000/upload
+
+###
+
+### Ask Question
+POST http://localhost:8000/chat
+Content-Type: application/json
+
+{
+  "message": "What medications is the patient taking?",
+  "session_id": "s1",
+  "patient_id": "patient-001"
+}
+
+###
+
+### Generate SOAP Note
+POST http://localhost:8000/soap
+Content-Type: application/json
+
+{
+  "patient_id": "patient-001"
+}
+
+###
+
+### Clear Session
+DELETE http://localhost:8000/session/s1

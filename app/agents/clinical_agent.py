@@ -131,39 +131,40 @@ async def classify_intent(message: str) -> tuple[str, str]:
     try:
         raw = await ollama_client.chat(
             messages=messages,
-            temperature=0.0,   # zero temperature = deterministic classification
+            temperature=0.0,
         )
 
-        # Strip any accidental markdown fences the LLM may add
-        clean = raw.strip().strip("```json").strip("```").strip()
+        # phi3:mini sometimes appends extra text after the JSON
+        # Find the first complete JSON object and stop there
+        clean = raw.strip()
 
-        parsed = json.loads(clean)
+        # Extract just the first {...} block
+        start = clean.find('{')
+        end   = clean.find('}', start)
+
+        if start == -1 or end == -1:
+            raise ValueError(f"No JSON object found in: {clean}")
+
+        json_str = clean[start:end + 1]
+        parsed   = json.loads(json_str)
+
         intent = parsed.get("intent", "retrieve").strip().lower()
         reason = parsed.get("reason", "")
 
-        # Validate — must be one of the four known intents
         valid = {"retrieve", "medication", "timeline", "soap"}
         if intent not in valid:
-            logger.warning(
-                f"[router] LLM returned unknown intent '{intent}' — "
-                f"defaulting to retrieve"
-            )
+            logger.warning(f"[router] Unknown intent '{intent}' — defaulting to retrieve")
             intent = "retrieve"
 
         logger.info(f"[router] LLM classified → '{intent}' | reason: {reason}")
         return intent, reason
 
     except json.JSONDecodeError as e:
-        logger.error(
-            f"[router] JSON parse failed: {e} | raw output: '{raw}' | "
-            f"falling back to keywords"
-        )
+        logger.error(f"[router] JSON parse failed: {e} | raw: '{raw}' | falling back to keywords")
         return _keyword_fallback(message), "json_parse_error"
 
     except Exception as e:
-        logger.error(
-            f"[router] LLM call failed: {e} | falling back to keywords"
-        )
+        logger.error(f"[router] LLM call failed: {e} | falling back to keywords")
         return _keyword_fallback(message), "llm_error"
 
 

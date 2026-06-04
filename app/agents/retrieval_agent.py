@@ -28,7 +28,7 @@ async def retrieve_node(state: AgentState) -> AgentState:
         chunks = await hybrid_search(
             query=state["message"],
             patient_id=state["patient_id"],
-            top_k=5,
+            top_k=3,
         )
         chunks = filter_by_patient(chunks, state["patient_id"])
 

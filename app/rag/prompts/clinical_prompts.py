@@ -9,7 +9,6 @@ information in this patient's chart"
 - Be concise and precise — use clinical language
 - Always mention which page the information comes from if possible
 - If asked about medications, always include dosage if available
-- End every response with: "⚠️ Always verify with the original chart."
 """
 
 

@@ -35,8 +35,18 @@ export default function MessageBubble({ message }) {
         <div className={`bubble-content ${isUser ? 'bubble-content--user' : 'bubble-content--assistant'}`}>
           {isLoading ? (
             <div className="bubble-loading" aria-label="Thinking">
-              <span /><span /><span />
+            <span />
+            <span />
+            <span />
+
+            <div className="bubble-loading-text">
+              {message.elapsed < 15
+                ? `Searching chart... ${message.elapsed}s`
+                : message.elapsed < 45
+                ? `Generating response... ${message.elapsed}s`
+                : `Still thinking... ${message.elapsed}s`}
             </div>
+          </div>
           ) : isUser ? (
             <p>{content}</p>
           ) : (

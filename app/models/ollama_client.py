@@ -50,7 +50,7 @@ class OllamaClient:
 
         logger.info(f"Sending chat request → model: {model}, messages: {len(messages)}")
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=None) as client:
             try:
                 response = await client.post(
                     f"{self.base_url}/api/chat",

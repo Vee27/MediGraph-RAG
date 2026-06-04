@@ -4,19 +4,22 @@ import MessageBubble from './MessageBubble'
 import './ChatWindow.css'
 
 const QUICK_PROMPTS = [
-  { label: 'Medications',  text: 'What medications is the patient currently taking?' },
-  { label: 'Vitals',       text: 'What are the patient\'s latest vital signs?' },
-  { label: 'Labs',         text: 'What are the abnormal lab results?' },
-  { label: 'Timeline',     text: 'Walk me through the patient timeline' },
-  { label: 'Diagnoses',    text: 'What are the patient\'s current diagnoses?' },
+  { label: 'Medications', text: 'What medications is the patient currently taking?' },
+  { label: 'Vitals', text: 'What are the patient\'s latest vital signs?' },
+  { label: 'Labs', text: 'What are the abnormal lab results?' },
+  { label: 'Timeline', text: 'Walk me through the patient timeline' },
+  { label: 'Diagnoses', text: 'What are the patient\'s current diagnoses?' },
 ]
 
 export default function ChatWindow({ patientId, sessionId }) {
-  const [messages, setMessages]   = useState([])
-  const [input, setInput]         = useState('')
+  const [messages, setMessages] = useState([])
+  const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+
   const bottomRef = useRef()
-  const inputRef  = useRef()
+  const inputRef = useRef()
+  const timerRef = useRef(null)
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -33,6 +36,28 @@ export default function ChatWindow({ patientId, sessionId }) {
     setMessages([])
   }, [patientId])
 
+  // Update loading bubble elapsed time
+  useEffect(() => {
+    if (isLoading) {
+      setMessages(prev =>
+        prev.map(m =>
+          m.isLoading
+            ? { ...m, elapsed }
+            : m
+        )
+      )
+    }
+  }, [elapsed, isLoading])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [])
+
   async function handleSend(text) {
     const msg = (text || input).trim()
     if (!msg || isLoading) return
@@ -43,37 +68,69 @@ export default function ChatWindow({ patientId, sessionId }) {
     const userMsg = { role: 'user', content: msg }
     setMessages(prev => [...prev, userMsg])
 
-    // Add loading placeholder
     const loadingId = Date.now()
+
+    // Start elapsed timer
+    setElapsed(0)
+
+    timerRef.current = setInterval(() => {
+      setElapsed(e => e + 1)
+    }, 1000)
+
+    // Add loading placeholder
     setMessages(prev => [
       ...prev,
-      { id: loadingId, role: 'assistant', content: '', isLoading: true }
+      {
+        id: loadingId,
+        role: 'assistant',
+        content: '',
+        isLoading: true,
+        elapsed: 0,
+      }
     ])
+
     setIsLoading(true)
 
     try {
       const data = await sendChat(msg, sessionId, patientId)
 
       // Replace loading placeholder with real response
-      setMessages(prev => prev.map(m =>
-        m.id === loadingId
-          ? {
-              role:    'assistant',
-              content: data.reply,
-              sources: data.sources || [],
-              intent:  data.intent || '',
-            }
-          : m
-      ))
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === loadingId
+            ? {
+                role: 'assistant',
+                content: data.reply,
+                sources: data.sources || [],
+                intent: data.intent || '',
+              }
+            : m
+        )
+      )
     } catch (err) {
-      const errorText = err.response?.data?.detail || 'Request failed. Is the server running?'
-      setMessages(prev => prev.map(m =>
-        m.id === loadingId
-          ? { role: 'assistant', content: `Error: ${errorText}`, sources: [], intent: '' }
-          : m
-      ))
+      const errorText =
+        err.response?.data?.detail ||
+        'Request failed. Is the server running?'
+
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === loadingId
+            ? {
+                role: 'assistant',
+                content: `Error: ${errorText}`,
+                sources: [],
+                intent: '',
+              }
+            : m
+        )
+      )
     } finally {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+
+      setElapsed(0)
       setIsLoading(false)
+
       inputRef.current?.focus()
     }
   }
@@ -95,6 +152,7 @@ export default function ChatWindow({ patientId, sessionId }) {
       <div className="chat-header">
         <div className="chat-header__left">
           <h2 className="chat-title">Clinical Chat</h2>
+
           {patientId ? (
             <span className="chat-patient-badge">
               <span className="dot dot--green" />
@@ -127,6 +185,7 @@ export default function ChatWindow({ patientId, sessionId }) {
                 ? `Chart loaded for ${patientId}`
                 : 'No chart loaded'}
             </p>
+
             <p className="chat-empty__sub">
               {patientId
                 ? 'Ask a clinical question below, or use a quick prompt'
@@ -150,10 +209,14 @@ export default function ChatWindow({ patientId, sessionId }) {
         ) : (
           <>
             {messages.map((msg, i) => (
-              <MessageBubble key={i} message={msg} />
+              <MessageBubble
+                key={msg.id || i}
+                message={msg}
+              />
             ))}
           </>
         )}
+
         <div ref={bottomRef} />
       </div>
 
@@ -172,9 +235,11 @@ export default function ChatWindow({ patientId, sessionId }) {
             rows={1}
             onChange={(e) => {
               setInput(e.target.value)
+
               // Auto-resize
               e.target.style.height = 'auto'
-              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px'
+              e.target.style.height =
+                Math.min(e.target.scrollHeight, 120) + 'px'
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -184,6 +249,7 @@ export default function ChatWindow({ patientId, sessionId }) {
             }}
             disabled={isLoading}
           />
+
           <button
             className="chat-send-btn"
             onClick={() => handleSend()}
@@ -197,6 +263,7 @@ export default function ChatWindow({ patientId, sessionId }) {
             )}
           </button>
         </div>
+
         <p className="chat-input-hint">
           Enter to send · Shift+Enter for new line
           {patientId && ' · Sources shown below each response'}

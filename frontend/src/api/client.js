@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const http = axios.create({
   baseURL: '/api',
-  timeout: 120_000,   // 2 min — Ollama can be slow on first call
+  timeout: 600_000,   // 10 min — Ollama can be slow on first call
   headers: { 'Content-Type': 'application/json' },
 })
 

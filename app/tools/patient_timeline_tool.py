@@ -6,13 +6,21 @@ from app.models.ollama_client import ollama_client
 logger = logging.getLogger(__name__)
 
 DATE_PATTERNS = [
-    r"\d{4}-\d{2}-\d{2}",
-    r"\d{2}/\d{2}/\d{4}",
-    r"\d{2}-\d{2}-\d{4}",
-    r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
-    r"[\s.]\d{1,2},?\s\d{4}",
-    r"\d{1,2}\s(?:January|February|March|April|May|June|July"
-    r"|August|September|October|November|December)\s\d{4}",
+    # ISO format: 2024-01-15
+    r"\b\d{4}-\d{2}-\d{2}\b",
+    # US slash format: 01/15/2024
+    r"\b\d{2}/\d{2}/\d{4}\b",
+    # US dash format: 01-15-2024
+    r"\b\d{2}-\d{2}-\d{4}\b",
+    # Long month name: January 15, 2024
+    r"\b(?:January|February|March|April|May|June|July|"
+    r"August|September|October|November|December)"
+    r"\s+\d{1,2},?\s+\d{4}\b",
+    # Short month name: Jan 15, 2024 or Jan. 15 2024
+    r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
+    r"\.?\s+\d{1,2},?\s+\d{4}\b",
+    # Year only with context: in 2024, since 2023
+    r"\b(?:in|since|from|until|by)\s+\d{4}\b",
 ]
 
 

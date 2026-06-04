@@ -175,7 +175,7 @@ export default function UploadPanel({ onUploadSuccess, activePatientId }) {
             onClick={handleUpload}
             disabled={status === 'uploading' || !file || !patientId}
           >
-            {status === 'uploading' ? 'Uploading…' : 'Index chart'}
+            {status === 'uploading' ? 'Uploading…' : 'Process chart'}
           </button>
         )}
       </div>

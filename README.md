@@ -14,86 +14,61 @@ running entirely on your own machine.
 
 ### System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    React + Vite Frontend                    │
-│                                                             │
-│     Upload PDF │ Chat │ Timeline │ SOAP Notes              │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ HTTP
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                        FastAPI API                          │
-│                                                             │
-│   POST /upload   POST /chat   POST /soap   GET /health      │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    LangGraph Agent                          │
-│                                                             │
-│  clinical_router                                            │
-│       ├── retrieve                                          │
-│       ├── medication                                        │
-│       ├── timeline                                          │
-│       └── soap                                              │
-│                                                             │
-│                    ↓ safety_wrapper                         │
-└──────────────┬───────────────────────┬──────────────────────┘
-               │                       │
-               ▼                       ▼
+```mermaid
+flowchart LR
 
-┌───────────────────────────┐   ┌───────────────────────────┐
-│      Hybrid Retrieval     │   │          Ollama           │
-│                           │   │                           │
-│  Dense Search             │   │      phi3:mini           │
-│  BM25                     │   │      (generation)        │
-│  Reciprocal Rank Fusion   │   │                           │
-└──────────────┬────────────┘   │   nomic-embed-text       │
-               │                │      (embeddings)        │
-               │                └───────────────────────────┘
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                        ChromaDB                             │
-│                                                             │
-│              Embedded Patient Documents                     │
-└─────────────────────────────────────────────────────────────┘
+    subgraph Frontend
+        UI["🖥️ React + Vite Frontend<br/>Upload PDF • Chat • Timeline • SOAP Notes"]
+    end
+
+    subgraph Backend
+        FAST["⚡ FastAPI API"]
+        AGENT["🧠 LangGraph Agent<br/><br/>clinical_router<br/>• retrieve<br/>• medication<br/>• timeline<br/>• soap<br/><br/>"]
+    end
+
+    subgraph Retrieval
+        RET["🔍 Hybrid Retrieval<br/>Dense Search<br/>BM25<br/>Reciprocal Rank Fusion"]
+        DB["🗄️ ChromaDB"]
+    end
+
+    subgraph Models
+        GEN["🤖 phi3:mini<br/>Generation"]
+        EMB["📄 nomic-embed-text<br/>Embeddings"]
+    end
+
+    UI -->|"HTTP"| FAST
+    FAST --> AGENT
+
+    AGENT --> RET
+    AGENT --> GEN
+
+    RET --> EMB
+    RET --> DB
 ```
+
 ### Document Ingestion Pipeline
 
-```text
-       PDF Chart
-           │
-           ▼
-┌─────────────────────┐
-│      PyMuPDF        │
-│    PDF Loader       │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│   Text Chunking     │
-│  512 chars + overlap│
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│  nomic-embed-text   │
-│     Embeddings      │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│      ChromaDB       │
-│   Vector Storage    │
-└──────────┬──────────┘
-           │
-           ▼
-      Ready for
-   Hybrid Retrieval
+```mermaid
+flowchart TB
+
+    PDF["📄 Patient PDF"]
+
+    LOADER["📥 PyMuPDF<br/>PDF Loader"]
+
+    CHUNK["✂️ Text Chunking<br/>512 chars + overlap"]
+
+    EMB["📄 nomic-embed-text<br/>Embeddings"]
+
+    DB["🗄️ ChromaDB<br/>Vector Storage"]
+
+    READY["✅ Ready for Hybrid Retrieval"]
+
+    PDF --> LOADER
+    LOADER --> CHUNK
+    CHUNK --> EMB
+    EMB --> DB
+    DB --> READY
 ```
-
-
 
 ## What it does
 
@@ -183,7 +158,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+Open `http://localhost:5173` in your browser. 
 
 ### 6. Run with Docker (alternative)
 
@@ -241,6 +216,10 @@ Example questions:
 - Generate a SOAP note for this encounter.
 
 See `docs/api_examples.md` for REST API examples.
+
+## Demo
+![MediGraph Demo](docs/images/demo.png)
+
 
 ## Performance benchmarks
 

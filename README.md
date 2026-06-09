@@ -9,6 +9,20 @@ running entirely on your own machine.
 > Not FDA-approved medical software. Do not use for clinical decision-making.
 > If LangSmith tracing is enabled, metadata may be sent to LangSmith cloud.
 
+## Design Decisions
+
+**Why LangGraph over plain LangChain chains?**  
+LangGraph models the agent as an explicit directed graph — every node is a testable pure function, every edge is auditable. Adding a new tool is adding a node and a conditional edge, not restructuring a monolithic chain. Nodes are inspectable via LangSmith.
+
+**Why Ollama-first?**  
+All inference runs locally — no patient data leaves the machine, no API keys, no rate limits. `phi3:mini` (2.2 GB) runs on 8 GB RAM.
+
+**Why hybrid retrieval (dense + BM25 + RRF)?**  
+Pure vector search fails on exact-match clinical queries — `"What is the Metformin dosage?"` can return semantically similar chunks that don't contain the word *Metformin*. BM25 fills that gap. Reciprocal Rank Fusion merges the two ranked lists without requiring weight tuning and is robust to scale differences between cosine similarity and BM25 scores.
+
+**Why RRF over weighted score fusion?**  
+Cosine similarity and BM25 scores aren't on the same scale — you can't add them directly. RRF uses only rank order (`1 / (rank + 60)`), making it scale-invariant and parameter-free.
+
 ## Architecture
 
 
